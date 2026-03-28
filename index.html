@@ -259,36 +259,20 @@
     cursor: pointer;
   }
 
-  /* PROTECTION: Watermark overlay */
+  /* PROTECTION: Watermark overlay — tiled SVG pattern for uniform coverage */
   .art-card .image-wrap .watermark {
     position: absolute;
     inset: 0;
     z-index: 2;
     pointer-events: none;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-    overflow: hidden;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='100'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Outfit,sans-serif' font-size='11' font-weight='600' letter-spacing='3' fill='white' fill-opacity='0.10' transform='rotate(-30 120 50)'%3ETHE SLOP SHOP%3C/text%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 240px 100px;
+    transition: background-image 0.3s ease;
   }
 
-  .art-card .image-wrap .watermark::before {
-    content: 'THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP •';
-    position: absolute;
-    width: 300%;
-    text-align: center;
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.3em;
-    color: rgba(255,255,255,0.25);
-    line-height: 3;
-    word-spacing: 1em;
-    transform: rotate(-30deg);
-    top: -50%; left: -50%;
-    white-space: normal;
-  }
-
-  body.watermark-active .art-card .image-wrap .watermark::before {
-    color: rgba(255,255,255,0.45);
+  body.watermark-active .art-card .image-wrap .watermark {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='100'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Outfit,sans-serif' font-size='11' font-weight='600' letter-spacing='3' fill='white' fill-opacity='0.35' transform='rotate(-30 120 50)'%3ETHE SLOP SHOP%3C/text%3E%3C/svg%3E");
   }
 
   /* Gradient fade at bottom */
@@ -377,34 +361,20 @@
     cursor: default;
   }
 
+  /* PROTECTION: Lightbox watermark — tiled SVG pattern for uniform coverage */
   .lightbox-image-container .lb-watermark {
     position: absolute;
     inset: 0;
     z-index: 1;
-    overflow: hidden;
     pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='120'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Outfit,sans-serif' font-size='13' font-weight='600' letter-spacing='3' fill='white' fill-opacity='0.10' transform='rotate(-30 140 60)'%3ETHE SLOP SHOP%3C/text%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 280px 120px;
+    transition: background-image 0.3s ease;
   }
 
-  .lightbox-image-container .lb-watermark::before {
-    content: 'THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP •';
-    position: absolute;
-    width: 300%;
-    text-align: center;
-    font-family: 'Outfit', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.3em;
-    color: rgba(255,255,255,0.20);
-    line-height: 3.5;
-    word-spacing: 1em;
-    transform: rotate(-30deg);
-    top: -50%; left: -50%;
-    white-space: normal;
-    transition: color 0.3s ease;
-  }
-
-  body.watermark-active .lightbox-image-container .lb-watermark::before {
-    color: rgba(255,255,255,0.45);
+  body.watermark-active .lightbox-image-container .lb-watermark {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='120'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Outfit,sans-serif' font-size='13' font-weight='600' letter-spacing='3' fill='white' fill-opacity='0.35' transform='rotate(-30 140 60)'%3ETHE SLOP SHOP%3C/text%3E%3C/svg%3E");
   }
 
   .lightbox-title {
@@ -541,6 +511,25 @@
 
   @media (max-width: 480px) {
     .gallery { grid-template-columns: 1fr; }
+  }
+  /* PROTECTION: Blur images when tab loses focus (screenshot tools trigger this) */
+  body.blur-protect .art-card .image-wrap .art-bg,
+  body.blur-protect .lightbox-image-container .lb-art {
+    filter: blur(20px) brightness(0.5) !important;
+    transition: filter 0.15s ease !important;
+  }
+
+  /* PROTECTION: Hide everything when printing (Ctrl+P) */
+  @media print {
+    html, body { display: none !important; }
+  }
+
+  /* PROTECTION: Disable text/image selection */
+  .art-card .image-wrap,
+  .lightbox-image-container {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 </style>
 </head>
@@ -829,23 +818,16 @@
     });
 
     /* ==========================================
-       PROTECTION 5: Visibility API — flash
-       watermarks when tab loses focus
+       PROTECTION 5: Visibility API — blur images
+       and intensify watermarks when tab loses focus
        (screenshot tools often trigger this)
        ========================================== */
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
-        document.body.classList.add('watermark-active');
+        document.body.classList.add('watermark-active', 'blur-protect');
       } else {
-        setTimeout(() => document.body.classList.remove('watermark-active'), 2000);
+        setTimeout(() => document.body.classList.remove('watermark-active', 'blur-protect'), 1200);
       }
-    });
-
-    window.addEventListener('blur', () => {
-      document.body.classList.add('watermark-active');
-    });
-    window.addEventListener('focus', () => {
-      setTimeout(() => document.body.classList.remove('watermark-active'), 1500);
     });
 
     /* ==========================================
@@ -857,7 +839,7 @@
       setInterval(() => {
         const w = window.outerWidth - window.innerWidth > threshold;
         const h = window.outerHeight - window.innerHeight > threshold;
-        if (w || h) document.body.classList.add('watermark-active');
+        if (w || h) document.body.classList.add('watermark-active', 'blur-protect');
       }, 1000);
     })();
 
