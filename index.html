@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Slop Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Fira+Code:wght@300;400&family=Outfit:wght@200;300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0a0a0a;
+    --bg-card: #111111;
+    --bg-hover: #1a1a1a;
+    --border: #1f1f1f;
+    --border-hover: #333;
+    --text-primary: #e8e4df;
+    --text-secondary: #7a756e;
+    --text-dim: #4a4640;
+    --accent: #c9a96e;
+    --accent-dim: #8a7444;
+    --glow: rgba(201, 169, 110, 0.08);
+    --glow-strong: rgba(201, 169, 110, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* ============================
+     PROTECTION: Block all selection
+     ============================ */
+  body, img, .art-card, .image-wrap {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* PROTECTION: Block image dragging */
+  img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    pointer-events: none;
+  }
+
+  /* PROTECTION: Hide everything when printing */
+  @media print {
+    body * { display: none !important; }
+    body::after {
+      content: 'Printing is disabled — The Slop Shop';
+      display: block !important;
+      font-family: sans-serif;
+      font-size: 2rem;
+      text-align: center;
+      padding: 4rem;
+      color: #333;
+    }
+  }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* === AMBIENT BACKGROUND === */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(201, 169, 110, 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(201, 169, 110, 0.02) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(30, 25, 18, 0.5) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === GRAIN OVERLAY === */
+  .grain-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* === HEADER === */
+  header {
+    position: relative;
+    z-index: 1;
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .logo-mark {
+    display: inline-block;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.65rem;
+    font-weight: 300;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent-dim);
+    margin-bottom: 1.2rem;
+    opacity: 0;
+    animation: fadeDown 1s ease 0.2s forwards;
+  }
+
+  .site-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(2.8rem, 8vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.4s forwards;
+  }
+
+  .site-title span {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  .tagline {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.08em;
+    font-weight: 200;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.7s forwards;
+  }
+
+  .header-rule {
+    width: 60px;
+    height: 1px;
+    background: var(--accent-dim);
+    margin: 1.5rem auto 0;
+    opacity: 0;
+    animation: scaleIn 1s ease 0.9s forwards;
+  }
+
+  /* === GALLERY CONTROLS === */
+  .gallery-header {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .gallery-count {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .gallery-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+
+  /* === GALLERY GRID === */
+  .gallery {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem 4rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* === ART CARD === */
+  .art-card {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    opacity: 0;
+    animation: cardReveal 0.8s ease forwards;
+  }
+
+  .art-card:nth-child(1) { animation-delay: 1.0s; }
+  .art-card:nth-child(2) { animation-delay: 1.1s; }
+  .art-card:nth-child(3) { animation-delay: 1.2s; }
+  .art-card:nth-child(4) { animation-delay: 1.3s; }
+  .art-card:nth-child(5) { animation-delay: 1.4s; }
+  .art-card:nth-child(6) { animation-delay: 1.5s; }
+  .art-card:nth-child(7) { animation-delay: 1.6s; }
+  .art-card:nth-child(8) { animation-delay: 1.7s; }
+  .art-card:nth-child(9) { animation-delay: 1.8s; }
+
+  .art-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-4px);
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.4),
+      0 0 40px var(--glow);
+  }
+
+  .art-card .image-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #080808;
+  }
+
+  /* PROTECTION: Images rendered as CSS backgrounds (no <img> to right-click) */
+  .art-card .image-wrap .art-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), filter 0.5s ease;
+    filter: brightness(0.85) contrast(1.05);
+  }
+
+  .art-card:hover .image-wrap .art-bg {
+    transform: scale(1.05);
+    filter: brightness(1) contrast(1.05);
+  }
+
+  /* PROTECTION: Invisible shield over every image */
+  .art-card .image-wrap .shield {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  /* PROTECTION: Watermark overlay */
+  .art-card .image-wrap .watermark {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    overflow: hidden;
+  }
+
+  .art-card .image-wrap .watermark::before {
+    content: 'THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP •';
+    position: absolute;
+    width: 300%;
+    text-align: center;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.12);
+    line-height: 3;
+    word-spacing: 1em;
+    transform: rotate(-30deg);
+    top: -50%; left: -50%;
+    white-space: normal;
+  }
+
+  body.watermark-active .art-card .image-wrap .watermark::before {
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* Gradient fade at bottom */
+  .art-card .image-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10,10,10,0.7) 0%, transparent 50%);
+    transition: opacity 0.5s ease;
+    opacity: 1;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .art-card:hover .image-wrap::after { opacity: 0.5; }
+
+  .art-card .card-info {
+    padding: 1rem 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+  }
+
+  .art-card .art-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+  }
+
+  .art-card .art-tag {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.03);
+    padding: 0.25rem 0.5rem;
+    border-radius: 2px;
+  }
+
+  /* === LIGHTBOX === */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(5, 5, 5, 0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    backdrop-filter: blur(20px);
+  }
+
+  .lightbox.active { opacity: 1; pointer-events: auto; }
+
+  .lightbox-image-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox-image-container .lb-art {
+    max-width: 90vw;
+    max-height: 85vh;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 2px;
+    box-shadow: 0 0 100px rgba(0,0,0,0.8);
+    transform: scale(0.95);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .lightbox.active .lightbox-image-container .lb-art { transform: scale(1); }
+
+  .lightbox-image-container .lb-shield {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    cursor: default;
+  }
+
+  .lightbox-image-container .lb-watermark {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .lightbox-image-container .lb-watermark::before {
+    content: 'THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP • THE SLOP SHOP •';
+    position: absolute;
+    width: 300%;
+    text-align: center;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.10);
+    line-height: 3.5;
+    word-spacing: 1em;
+    transform: rotate(-30deg);
+    top: -50%; left: -50%;
+    white-space: normal;
+    transition: color 0.3s ease;
+  }
+
+  body.watermark-active .lightbox-image-container .lb-watermark::before {
+    color: rgba(255,255,255,0.3);
+  }
+
+  .lightbox-title {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+    z-index: 3;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 2rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 200;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: color 0.3s ease;
+    background: none;
+    border: none;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  .lightbox-close:hover { color: var(--text-primary); }
+
+  /* === PROTECTION TOAST === */
+  .protect-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(17, 17, 17, 0.95);
+    border: 1px solid var(--accent-dim);
+    color: var(--accent);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    z-index: 10000;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s ease;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .protect-toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  /* === PLACEHOLDER === */
+  .art-card .image-wrap.placeholder .art-bg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0e0e0e, #141414);
+  }
+
+  .art-card .image-wrap.placeholder .art-bg::before {
+    content: '◆';
+    font-size: 1.5rem;
+    color: var(--text-dim);
+    opacity: 0.3;
+  }
+
+  /* === FOOTER === */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  .footer-sub {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    margin-top: 0.5rem;
+    opacity: 0.5;
+  }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scaleX(0); }
+    to   { opacity: 1; transform: scaleX(1); }
+  }
+
+  @keyframes cardReveal {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 768px) {
+    .gallery {
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+      padding: 1rem 1rem 3rem;
+    }
+    header { padding: 2rem 1.5rem 1.5rem; }
+    .gallery-header { padding: 2rem 1rem 0.5rem; }
+  }
+
+  @media (max-width: 480px) {
+    .gallery { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="grain-overlay"></div>
+
+  <!-- ============================================ -->
+  <!--                  HEADER                      -->
+  <!-- ============================================ -->
+  <header>
+    <div class="header-inner">
+      <div class="logo-mark">est. 2026</div>
+      <h1 class="site-title">The Slop <span>Shop</span></h1>
+      <p class="tagline">Curated AI-generated slop</p>
+      <div class="header-rule"></div>
+    </div>
+  </header>
+
+  <!-- ============================================ -->
+  <!--              GALLERY HEADER                  -->
+  <!-- ============================================ -->
+  <div class="gallery-header">
+    <span class="gallery-label">Collection</span>
+    <span class="gallery-count">06 works</span>
+  </div>
+
+  <!-- ============================================ -->
+  <!--                GALLERY GRID                  -->
+  <!-- ============================================ -->
+  <div class="gallery">
+
+    <!--
+    ╔══════════════════════════════════════════════════╗
+    ║  SNIPPET TEMPLATE — Copy this whole block       ║
+    ║  to add a new artwork:                          ║
+    ║                                                 ║
+    ║  1. Copy from <div class="art-card">            ║
+    ║     down to its closing </div>                  ║
+    ║  2. Change data-src="images/YOUR-FILE.png"      ║
+    ║  3. Change the title text                       ║
+    ║  4. (Optional) Change the tag text              ║
+    ║  5. Update the gallery-count number above       ║
+    ╚══════════════════════════════════════════════════╝
+
+    COPY FROM HERE ↓↓↓
+    ===================================
+
+    <div class="art-card" data-src="images/YOUR-IMAGE.png" onclick="openLightbox(this)">
+      <div class="image-wrap">
+        <div class="art-bg"></div>
+        <div class="watermark"></div>
+        <div class="shield"></div>
+      </div>
+      <div class="card-info">
+        <span class="art-title">Artwork Title</span>
+        <span class="art-tag">AI Art</span>
+      </div>
+    </div>
+
+    ===================================
+    COPY TO HERE ↑↑↑
+    -->
+
+    <!-- PIECE 01 -->
+    <div class="art-card" data-src="images/Trumpinator.png" onclick="openLightbox(this)">
+      <div class="image-wrap placeholder">
+        <div class="art-bg"></div>
+        <div class="watermark"></div>
+        <div class="shield"></div>
+      </div>
+      <div class="card-info">
+        <span class="art-title">Trumpinator</span>
+        <span class="art-tag">AI Art</span>
+      </div>
+    </div>
+
+    <!-- PIECE 02 -->
+    <div class="art-card" data-src="images/TheLizardKing.png" onclick="openLightbox(this)">
+      <div class="image-wrap placeholder">
+        <div class="art-bg"></div>
+        <div class="watermark"></div>
+        <div class="shield"></div>
+      </div>
+      <div class="card-info">
+        <span class="art-title">The Lizard King</span>
+        <span class="art-tag">AI Art</span>
+      </div>
+    </div>
+
+    <!-- PIECE 03 -->
+    <div class="art-card" data-src="images/Fembot.png" onclick="openLightbox(this)">
+      <div class="image-wrap placeholder">
+        <div class="art-bg"></div>
+        <div class="watermark"></div>
+        <div class="shield"></div>
+      </div>
+      <div class="card-info">
+        <span class="art-title">Fembot</span>
+        <span class="art-tag">AI Art</span>
+      </div>
+    </div>
+
+    <!-- PIECE 04 -->
+    <div class="art-card" data-src="images/BearNecessity.png" onclick="openLightbox(this)">
+      <div class="image-wrap placeholder">
+        <div class="art-bg"></div>
+        <div class="watermark"></div>
+        <div class="shield"></div>
+      </div>
+      <div class="card-info">
+        <span class="art-title">The Bear Necessity</span>
+        <span class="art-tag">AI Art</span>
+      </div>
+    </div>
+
+    <!-- PIECE 05 -->
+    <div class="art-card" data-src="images/PopIcon.png" onclick="openLightbox(this)">
+      <div class="image-wrap placeholder">
+        <div class="art-bg"></div>
+        <div class="watermark"></div>
+        <div class="shield"></div>
+      </div>
+      <div class="card-info">
+        <span class="art-title">Pop Icon</span>
+        <span class="art-tag">AI Art</span>
+      </div>
+    </div>
+
+    <!-- PIECE 06 -->
+    <div class="art-card" data-src="images/NoPlaceLikeHome.png" onclick="openLightbox(this)">
+      <div class="image-wrap placeholder">
+        <div class="art-bg"></div>
+        <div class="watermark"></div>
+        <div class="shield"></div>
+      </div>
+      <div class="card-info">
+        <span class="art-title">No Place Like Home</span>
+        <span class="art-tag">AI Art</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!--                 LIGHTBOX                     -->
+  <!-- ============================================ -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" aria-label="Close">&times;</button>
+    <div class="lightbox-image-container">
+      <div class="lb-art" id="lb-art"></div>
+      <div class="lb-watermark"></div>
+      <div class="lb-shield"></div>
+    </div>
+    <div class="lightbox-title" id="lb-title"></div>
+  </div>
+
+  <!-- ============================================ -->
+  <!--            PROTECTION TOAST                  -->
+  <!-- ============================================ -->
+  <div class="protect-toast" id="protectToast">⚠ So sorry.</div>
+
+  <!-- ============================================ -->
+  <!--                  FOOTER                      -->
+  <!-- ============================================ -->
+  <footer>
+    <div class="footer-name">The Slop Shop</div>
+    <div class="footer-sub">All works AI-generated &bull; Made by R0US</div>
+  </footer>
+
+  <!-- ============================================ -->
+  <!--                 SCRIPTS                      -->
+  <!-- ============================================ -->
+  <script>
+    /* ==========================================
+       IMAGE LOADER — renders via CSS background
+       so there are NO <img> tags to save
+       ========================================== */
+    document.querySelectorAll('.art-card[data-src]').forEach(card => {
+      const src = card.getAttribute('data-src');
+      const bg = card.querySelector('.art-bg');
+      if (bg && src) {
+        bg.style.backgroundImage = `url('${src}')`;
+        const wrap = card.querySelector('.image-wrap');
+        const testImg = new Image();
+        testImg.onload = () => wrap.classList.remove('placeholder');
+        testImg.src = src;
+      }
+    });
+
+    /* ==========================================
+       LIGHTBOX
+       ========================================== */
+    const lightbox = document.getElementById('lightbox');
+    const lbArt = document.getElementById('lb-art');
+    const lbTitle = document.getElementById('lb-title');
+
+    function openLightbox(card) {
+      const src = card.getAttribute('data-src');
+      if (!src) return;
+      const title = card.querySelector('.art-title').textContent;
+      const testImg = new Image();
+      testImg.onload = function() {
+        lbArt.style.width = this.width + 'px';
+        lbArt.style.height = this.height + 'px';
+        lbArt.style.maxWidth = '90vw';
+        lbArt.style.maxHeight = '85vh';
+        lbArt.style.backgroundImage = `url('${src}')`;
+        lbTitle.textContent = title;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      };
+      testImg.src = src;
+    }
+
+    function closeLightbox(e) {
+      if (e.target === lightbox || e.target.classList.contains('lightbox-close')) {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    /* ==========================================
+       PROTECTION: Toast notification
+       ========================================== */
+    let toastTimeout;
+    function showProtectToast() {
+      const toast = document.getElementById('protectToast');
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    /* ==========================================
+       PROTECTION 1: Block right-click everywhere
+       ========================================== */
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      showProtectToast();
+      return false;
+    });
+
+    /* ==========================================
+       PROTECTION 2: Block keyboard shortcuts
+       Ctrl+S, Ctrl+U, Ctrl+P, Ctrl+Shift+I/J/C, F12
+       ========================================== */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+        return;
+      }
+
+      if (e.key === 'F12') {
+        e.preventDefault(); showProtectToast(); return false;
+      }
+
+      if (e.key === 'PrintScreen') {
+        e.preventDefault(); showProtectToast();
+        navigator.clipboard.writeText('').catch(() => {});
+        return false;
+      }
+
+      if (e.ctrlKey || e.metaKey) {
+        if (e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase())) {
+          e.preventDefault(); showProtectToast(); return false;
+        }
+        if (['s','u','p'].includes(e.key.toLowerCase())) {
+          e.preventDefault(); showProtectToast(); return false;
+        }
+      }
+    });
+
+    /* ==========================================
+       PROTECTION 3: Block drag-and-drop
+       ========================================== */
+    document.addEventListener('dragstart', (e) => {
+      e.preventDefault(); return false;
+    });
+
+    /* ==========================================
+       PROTECTION 4: Block copy
+       ========================================== */
+    document.addEventListener('copy', (e) => {
+      e.preventDefault(); return false;
+    });
+
+    /* ==========================================
+       PROTECTION 5: Visibility API — flash
+       watermarks when tab loses focus
+       (screenshot tools often trigger this)
+       ========================================== */
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        document.body.classList.add('watermark-active');
+      } else {
+        setTimeout(() => document.body.classList.remove('watermark-active'), 2000);
+      }
+    });
+
+    window.addEventListener('blur', () => {
+      document.body.classList.add('watermark-active');
+    });
+    window.addEventListener('focus', () => {
+      setTimeout(() => document.body.classList.remove('watermark-active'), 1500);
+    });
+
+    /* ==========================================
+       PROTECTION 6: Dev tools size detection
+       (shows watermarks if panel is open)
+       ========================================== */
+    (function detectDevTools() {
+      const threshold = 160;
+      setInterval(() => {
+        const w = window.outerWidth - window.innerWidth > threshold;
+        const h = window.outerHeight - window.innerHeight > threshold;
+        if (w || h) document.body.classList.add('watermark-active');
+      }, 1000);
+    })();
+
+    /* ==========================================
+       PROTECTION 7: Block mobile long-press
+       ========================================== */
+    document.addEventListener('touchstart', (e) => {
+      if (e.target.closest('.image-wrap') || e.target.closest('.lightbox-image-container')) {
+        e.target.addEventListener('touchend', () => {}, { once: true });
+      }
+    }, { passive: true });
+
+    document.querySelectorAll('.image-wrap, .lightbox-image-container').forEach(el => {
+      el.style.webkitTouchCallout = 'none';
+    });
+  </script>
+
+</body>
+</html>
