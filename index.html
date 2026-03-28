@@ -24,9 +24,6 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* ============================
-     PROTECTION: Block all selection
-     ============================ */
   body, img, .art-card, .image-wrap {
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -35,7 +32,6 @@
     -webkit-touch-callout: none;
   }
 
-  /* PROTECTION: Block image dragging */
   img {
     -webkit-user-drag: none;
     -khtml-user-drag: none;
@@ -45,7 +41,6 @@
     pointer-events: none;
   }
 
-  /* PROTECTION: Hide everything when printing */
   @media print {
     body * { display: none !important; }
     body::after {
@@ -68,7 +63,6 @@
     overflow-x: hidden;
   }
 
-  /* === AMBIENT BACKGROUND === */
   body::before {
     content: '';
     position: fixed;
@@ -82,7 +76,6 @@
     z-index: 0;
   }
 
-  /* === GRAIN OVERLAY === */
   .grain-overlay {
     position: fixed;
     top: 0; left: 0;
@@ -93,7 +86,6 @@
     z-index: 9999;
   }
 
-  /* === HEADER === */
   header {
     position: relative;
     z-index: 1;
@@ -156,7 +148,6 @@
     animation: scaleIn 1s ease 0.9s forwards;
   }
 
-  /* === GALLERY CONTROLS === */
   .gallery-header {
     position: relative;
     z-index: 1;
@@ -183,7 +174,6 @@
     font-weight: 300;
   }
 
-  /* === GALLERY GRID === */
   .gallery {
     position: relative;
     z-index: 1;
@@ -195,7 +185,6 @@
     gap: 1.5rem;
   }
 
-  /* === ART CARD === */
   .art-card {
     position: relative;
     background: var(--bg-card);
@@ -234,7 +223,6 @@
     background: #080808;
   }
 
-  /* PROTECTION: Images rendered as CSS backgrounds (no <img> to right-click) */
   .art-card .image-wrap .art-bg {
     position: absolute;
     inset: 0;
@@ -250,7 +238,6 @@
     filter: brightness(1) contrast(1.05);
   }
 
-  /* PROTECTION: Invisible shield over every image */
   .art-card .image-wrap .shield {
     position: absolute;
     inset: 0;
@@ -259,7 +246,6 @@
     cursor: pointer;
   }
 
-  /* PROTECTION: Watermark overlay — tiled SVG pattern for uniform coverage */
   .art-card .image-wrap .watermark {
     position: absolute;
     inset: 0;
@@ -275,7 +261,6 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='100'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Outfit,sans-serif' font-size='11' font-weight='600' letter-spacing='3' fill='white' fill-opacity='0.35' transform='rotate(-30 120 50)'%3ETHE SLOP SHOP%3C/text%3E%3C/svg%3E");
   }
 
-  /* Gradient fade at bottom */
   .art-card .image-wrap::after {
     content: '';
     position: absolute;
@@ -316,7 +301,6 @@
     border-radius: 2px;
   }
 
-  /* === LIGHTBOX === */
   .lightbox {
     position: fixed;
     inset: 0;
@@ -361,7 +345,6 @@
     cursor: default;
   }
 
-  /* PROTECTION: Lightbox watermark — tiled SVG pattern for uniform coverage */
   .lightbox-image-container .lb-watermark {
     position: absolute;
     inset: 0;
@@ -411,7 +394,6 @@
 
   .lightbox-close:hover { color: var(--text-primary); }
 
-  /* === PROTECTION TOAST === */
   .protect-toast {
     position: fixed;
     bottom: 2rem;
@@ -437,7 +419,6 @@
     opacity: 1;
   }
 
-  /* === PLACEHOLDER === */
   .art-card .image-wrap.placeholder .art-bg {
     display: flex;
     align-items: center;
@@ -452,7 +433,6 @@
     opacity: 0.3;
   }
 
-  /* === FOOTER === */
   footer {
     position: relative;
     z-index: 1;
@@ -477,7 +457,6 @@
     opacity: 0.5;
   }
 
-  /* === ANIMATIONS === */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -498,7 +477,6 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* === RESPONSIVE === */
   @media (max-width: 768px) {
     .gallery {
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -512,19 +490,17 @@
   @media (max-width: 480px) {
     .gallery { grid-template-columns: 1fr; }
   }
-  /* PROTECTION: Blur images when tab loses focus (screenshot tools trigger this) */
+
   body.blur-protect .art-card .image-wrap .art-bg,
   body.blur-protect .lightbox-image-container .lb-art {
     filter: blur(20px) brightness(0.5) !important;
     transition: filter 0.15s ease !important;
   }
 
-  /* PROTECTION: Hide everything when printing (Ctrl+P) */
   @media print {
     html, body { display: none !important; }
   }
 
-  /* PROTECTION: Disable text/image selection */
   .art-card .image-wrap,
   .lightbox-image-container {
     -webkit-user-select: none;
@@ -537,9 +513,6 @@
 
   <div class="grain-overlay"></div>
 
-  <!-- ============================================ -->
-  <!--                  HEADER                      -->
-  <!-- ============================================ -->
   <header>
     <div class="header-inner">
       <div class="logo-mark">est. 2026</div>
@@ -549,17 +522,11 @@
     </div>
   </header>
 
-  <!-- ============================================ -->
-  <!--              GALLERY HEADER                  -->
-  <!-- ============================================ -->
   <div class="gallery-header">
     <span class="gallery-label">Collection</span>
-    <span class="gallery-count">06 works</span>
+    <span class="gallery-count" id="galleryCount"></span>
   </div>
 
-  <!-- ============================================ -->
-  <!--                GALLERY GRID                  -->
-  <!-- ============================================ -->
   <div class="gallery">
 
     <!--
@@ -572,7 +539,7 @@
     ║  2. Change data-src="images/YOUR-FILE.png"      ║
     ║  3. Change the title text                       ║
     ║  4. (Optional) Change the tag text              ║
-    ║  5. Update the gallery-count number above       ║
+    ║  5. Gallery count updates automatically!        ║
     ╚══════════════════════════════════════════════════╝
 
     COPY FROM HERE ↓↓↓
@@ -672,7 +639,7 @@
       </div>
     </div>
 
-        <!-- PIECE 07 -->
+    <!-- PIECE 07 -->
     <div class="art-card" data-src="images/KarateMaster.png" onclick="openLightbox(this)">
       <div class="image-wrap placeholder">
         <div class="art-bg"></div>
@@ -684,12 +651,33 @@
         <span class="art-tag">Joe Biden</span>
       </div>
     </div>
+    
+    <div class="art-card" data-src="images/LittleWilly.png" onclick="openLightbox(this)">
+      <div class="image-wrap placeholder">
+        <div class="art-bg"></div>
+        <div class="watermark"></div>
+        <div class="shield"></div>
+      </div>
+      <div class="card-info">
+        <span class="art-title">Little Willy</span>
+        <span class="art-tag">Will Smith</span>
+      </div>
+    </div>
 
+    <div class="art-card" data-src="images/SwallowingStars.png" onclick="openLightbox(this)">
+      <div class="image-wrap placeholder">
+        <div class="art-bg"></div>
+        <div class="watermark"></div>
+        <div class="shield"></div>
+      </div>
+      <div class="card-info">
+        <span class="art-title">Swallowing Stars</span>
+        <span class="art-tag">Katy Perry</span>
+      </div>
+    </div>
+    
   </div>
 
-  <!-- ============================================ -->
-  <!--                 LIGHTBOX                     -->
-  <!-- ============================================ -->
   <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
     <button class="lightbox-close" aria-label="Close">&times;</button>
     <div class="lightbox-image-container">
@@ -700,22 +688,13 @@
     <div class="lightbox-title" id="lb-title"></div>
   </div>
 
-  <!-- ============================================ -->
-  <!--            PROTECTION TOAST                  -->
-  <!-- ============================================ -->
   <div class="protect-toast" id="protectToast">⚠ So sorry.</div>
 
-  <!-- ============================================ -->
-  <!--                  FOOTER                      -->
-  <!-- ============================================ -->
   <footer>
     <div class="footer-name">The Slop Shop</div>
     <div class="footer-sub">All works AI-generated &bull; Made by R0US</div>
   </footer>
 
-  <!-- ============================================ -->
-  <!--                 SCRIPTS                      -->
-  <!-- ============================================ -->
   <script>
     /* ==========================================
        IMAGE LOADER — renders via CSS background
@@ -732,6 +711,13 @@
         testImg.src = src;
       }
     });
+
+    /* ==========================================
+       AUTO GALLERY COUNT
+       ========================================== */
+    const count = document.querySelectorAll('.art-card').length;
+    document.getElementById('galleryCount').textContent =
+      String(count).padStart(2, '0') + ' works';
 
     /* ==========================================
        LIGHTBOX
