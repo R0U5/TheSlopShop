@@ -301,6 +301,67 @@
     border-radius: 2px;
   }
 
+  .card-info-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .like-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: 1px solid transparent;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-dim);
+    position: relative;
+    z-index: 5;
+  }
+
+  .like-btn:hover {
+    color: var(--accent-dim);
+    border-color: var(--border);
+  }
+
+  .like-btn.liked {
+    color: var(--accent);
+  }
+
+  .like-btn.liked:hover {
+    color: var(--accent);
+  }
+
+  .like-btn svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .like-btn:hover svg {
+    transform: scale(1.15);
+  }
+
+  .like-btn.liked svg {
+    animation: heartPop 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .like-count {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    min-width: 1ch;
+  }
+
+  @keyframes heartPop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.35); }
+    100% { transform: scale(1); }
+  }
+
   .lightbox {
     position: fixed;
     inset: 0;
@@ -508,6 +569,9 @@
     -webkit-touch-callout: none;
   }
 </style>
+<!-- Firebase SDK (Realtime Database only — lightweight) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -553,7 +617,13 @@
       </div>
       <div class="card-info">
         <span class="art-title">Artwork Title</span>
-        <span class="art-tag">AI Art</span>
+        <div class="card-info-right">
+          <button class="like-btn" onclick="toggleLike(event, this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="like-count">0</span>
+          </button>
+          <span class="art-tag">AI Art</span>
+        </div>
       </div>
     </div>
 
@@ -570,7 +640,13 @@
       </div>
       <div class="card-info">
         <span class="art-title">Trumpinator</span>
-        <span class="art-tag">Donald J Trump</span>
+        <div class="card-info-right">
+          <button class="like-btn" onclick="toggleLike(event, this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="like-count">0</span>
+          </button>
+          <span class="art-tag">Donald J Trump</span>
+        </div>
       </div>
     </div>
 
@@ -583,7 +659,13 @@
       </div>
       <div class="card-info">
         <span class="art-title">The Lizard King</span>
-        <span class="art-tag">Mark Zuckerberg</span>
+        <div class="card-info-right">
+          <button class="like-btn" onclick="toggleLike(event, this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="like-count">0</span>
+          </button>
+          <span class="art-tag">Mark Zuckerberg</span>
+        </div>
       </div>
     </div>
 
@@ -596,7 +678,13 @@
       </div>
       <div class="card-info">
         <span class="art-title">Fembot</span>
-        <span class="art-tag">Scarlett Johansson</span>
+        <div class="card-info-right">
+          <button class="like-btn" onclick="toggleLike(event, this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="like-count">0</span>
+          </button>
+          <span class="art-tag">Scarlett Johansson</span>
+        </div>
       </div>
     </div>
 
@@ -609,7 +697,13 @@
       </div>
       <div class="card-info">
         <span class="art-title">The Bear Necessity</span>
-        <span class="art-tag">Vladimir Putin</span>
+        <div class="card-info-right">
+          <button class="like-btn" onclick="toggleLike(event, this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="like-count">0</span>
+          </button>
+          <span class="art-tag">Vladimir Putin</span>
+        </div>
       </div>
     </div>
 
@@ -622,7 +716,13 @@
       </div>
       <div class="card-info">
         <span class="art-title">Pop Icon</span>
-        <span class="art-tag">Elvis Prestly</span>
+        <div class="card-info-right">
+          <button class="like-btn" onclick="toggleLike(event, this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="like-count">0</span>
+          </button>
+          <span class="art-tag">Elvis Prestly</span>
+        </div>
       </div>
     </div>
 
@@ -635,7 +735,13 @@
       </div>
       <div class="card-info">
         <span class="art-title">No Place Like Home</span>
-        <span class="art-tag">Harvey Weinstein</span>
+        <div class="card-info-right">
+          <button class="like-btn" onclick="toggleLike(event, this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="like-count">0</span>
+          </button>
+          <span class="art-tag">Harvey Weinstein</span>
+        </div>
       </div>
     </div>
 
@@ -648,7 +754,13 @@
       </div>
       <div class="card-info">
         <span class="art-title">Master of Kung-Fu: Joe Biden</span>
-        <span class="art-tag">Joe Biden</span>
+        <div class="card-info-right">
+          <button class="like-btn" onclick="toggleLike(event, this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="like-count">0</span>
+          </button>
+          <span class="art-tag">Joe Biden</span>
+        </div>
       </div>
     </div>
     
@@ -660,7 +772,13 @@
       </div>
       <div class="card-info">
         <span class="art-title">Little Willy</span>
-        <span class="art-tag">Will Smith</span>
+        <div class="card-info-right">
+          <button class="like-btn" onclick="toggleLike(event, this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="like-count">0</span>
+          </button>
+          <span class="art-tag">Will Smith</span>
+        </div>
       </div>
     </div>
 
@@ -671,8 +789,14 @@
         <div class="shield"></div>
       </div>
       <div class="card-info">
-        <span class="art-title">Swallowing Stars</span>
-        <span class="art-tag">Katy Perry</span>
+        <span class="art-title">Star Destroyer</span>
+        <div class="card-info-right">
+          <button class="like-btn" onclick="toggleLike(event, this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span class="like-count">0</span>
+          </button>
+          <span class="art-tag">Katy Perry</span>
+        </div>
       </div>
     </div>
     
@@ -854,6 +978,113 @@
     document.querySelectorAll('.image-wrap, .lightbox-image-container').forEach(el => {
       el.style.webkitTouchCallout = 'none';
     });
+
+    /* ==========================================
+       LIKE SYSTEM — Firebase Realtime Database
+       ========================================== */
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyASEbDYQnpBsIihw-41vMDFPDMvrY3ieLw",
+      authDomain: "tracker-dcf99.firebaseapp.com",
+      databaseURL: "https://tracker-dcf99-default-rtdb.firebaseio.com",
+      projectId: "tracker-dcf99",
+      storageBucket: "tracker-dcf99.firebasestorage.app",
+      messagingSenderId: "756616230374",
+      appId: "1:756616230374:web:56212a036ae2c7036dd227"
+    };
+
+    // ---------- state ----------
+    let firebaseReady = false;
+    let db = null;
+    const localLikes = JSON.parse(localStorage.getItem('slop_likes') || '{}');
+
+    // ---------- init ----------
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+      firebaseReady = true;
+    } catch(e) {
+      console.warn('Firebase not configured — likes will be local-only.', e);
+    }
+
+    // Build a clean ID from the data-src (e.g. "images/Trumpinator.png" → "Trumpinator")
+    function pieceId(card) {
+      const src = card.closest('.art-card')?.getAttribute('data-src') || card.getAttribute('data-src') || '';
+      return src.replace(/^images\//, '').replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_');
+    }
+
+    // ---------- real-time listeners ----------
+    function attachListeners() {
+      document.querySelectorAll('.art-card').forEach(card => {
+        const id = pieceId(card);
+        if (!id) return;
+        const btn = card.querySelector('.like-btn');
+        const countEl = card.querySelector('.like-count');
+        if (!btn || !countEl) return;
+
+        // Restore local liked state
+        if (localLikes[id]) btn.classList.add('liked');
+
+        // Fill the heart SVG if liked
+        updateHeartFill(btn);
+
+        if (firebaseReady) {
+          db.ref('likes/' + id + '/count').on('value', snap => {
+            const val = snap.val() || 0;
+            countEl.textContent = val;
+          });
+        }
+      });
+    }
+
+    function updateHeartFill(btn) {
+      const svg = btn.querySelector('svg path');
+      if (!svg) return;
+      if (btn.classList.contains('liked')) {
+        svg.setAttribute('fill', 'currentColor');
+      } else {
+        svg.setAttribute('fill', 'none');
+      }
+    }
+
+    // ---------- toggle ----------
+    function toggleLike(event, btn) {
+      event.stopPropagation(); // don't open lightbox
+      event.preventDefault();
+
+      const card = btn.closest('.art-card');
+      const id = pieceId(card);
+      if (!id) return;
+
+      const isLiked = !!localLikes[id];
+      const countEl = btn.querySelector('.like-count');
+
+      if (isLiked) {
+        // Unlike
+        delete localLikes[id];
+        btn.classList.remove('liked');
+        if (firebaseReady) {
+          db.ref('likes/' + id + '/count').transaction(v => Math.max((v || 0) - 1, 0));
+        } else {
+          countEl.textContent = Math.max(parseInt(countEl.textContent || '0') - 1, 0);
+        }
+      } else {
+        // Like
+        localLikes[id] = true;
+        btn.classList.add('liked');
+        if (firebaseReady) {
+          db.ref('likes/' + id + '/count').transaction(v => (v || 0) + 1);
+        } else {
+          countEl.textContent = parseInt(countEl.textContent || '0') + 1;
+        }
+      }
+
+      updateHeartFill(btn);
+      localStorage.setItem('slop_likes', JSON.stringify(localLikes));
+    }
+
+    // ---------- boot ----------
+    attachListeners();
   </script>
 
 </body>
